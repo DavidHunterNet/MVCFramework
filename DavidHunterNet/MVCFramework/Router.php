@@ -7,38 +7,59 @@ class Router
     private $routes = array();
     private $errorRoutes = array();
 
-    public function add( String $method, String $host, String $path, array $callback )
+    public function add( String $method, $host, String $path, array $callback )
     {
         if( substr( $path, 0, 1 ) != "/" )
             $path = "/" . $path;
+        
+        if( ! is_string( $host ) && ! is_array( $host ) )
+            die( "Error Adding Route: Host must be either String or array!" );
 
-        if( isset( $this->routes[ $method ][ $host ][ $path ] ) )
-            die( "Error: A route already exists for method " . $method . " host " . $host . " and path " . $path . "!" );
-        
-        if( count( $callback ) < 2 || ! $callback[0] instanceof Controller )
-            die( "Error: Specified callback array must have first element as valid Controller instance." );
-        
-        if( ! method_exists( $callback[0], $callback[1] ) )
-            die( "Error: Callback method does not exist for specified Controller instance!" );
-        
-        $this->routes[ $method ][ $host ][ $path ] = $callback;
+        if( is_string( $host ) )
+            $host = array( $host );
+
+        foreach( $host as $h )
+        {
+            if( ! is_string( $h ) )
+                die( "Error Adding Route - Hostname Not a String: " . $h );
+
+            if( isset( $this->routes[ $method ][ $h ][ $path ] ) )
+                die( "Error: A route already exists for method " . $method . " host " . $h . " and path " . $path . "!" );
+            
+            if( count( $callback ) < 2 || ! $callback[0] instanceof Controller )
+                die( "Error: Specified callback array must have first element as valid Controller instance." );
+            
+            if( ! method_exists( $callback[0], $callback[1] ) )
+                die( "Error: Callback method does not exist for specified Controller instance!" );
+            
+            $this->routes[ $method ][ $h ][ $path ] = $callback;
+        }
     }
 
-    public function addError( String $code, String $method, String $host, String $path, array $callback )
+    public function addError( String $code, String $method, $host, String $path, array $callback )
     {
         if( substr( $path, 0, 1 ) != "/" )
             $path = "/" . $path;
+        
+        if( ! is_string( $host ) && ! is_array( $host ) )
+            die( "Error Adding Route: Host must be either String or array!" );
 
-        if( isset( $this->routesError[ $code ][ $method ][ $host ][ $path ] ) )
-            die( "Error: A route already exists for code " . $code . " method " . $method . " host " . $host . " and path " . $path . "!" );
-        
-        if( count( $callback ) < 2 || ! $callback[0] instanceof Controller )
-            die( "Error: Specified callback array must have first element as valid Controller instance." );
-        
-        if( ! method_exists( $callback[0], $callback[1] ) )
-            die( "Error: Callback method does not exist for specified Controller instance!" );
-        
-        $this->routesError[ $code ][ $method ][ $host ][ $path ] = $callback;
+        if( is_string( $host ) )
+            $host = array( $host );
+
+        foreach( $host as $h )
+        {
+            if( isset( $this->routesError[ $code ][ $method ][ $h ][ $path ] ) )
+                die( "Error: A route already exists for code " . $code . " method " . $method . " host " . $h . " and path " . $path . "!" );
+            
+            if( count( $callback ) < 2 || ! $callback[0] instanceof Controller )
+                die( "Error: Specified callback array must have first element as valid Controller instance." );
+            
+            if( ! method_exists( $callback[0], $callback[1] ) )
+                die( "Error: Callback method does not exist for specified Controller instance!" );
+            
+            $this->routesError[ $code ][ $method ][ $h ][ $path ] = $callback;
+        }
     }
 
     public function resolve( String $method, String $host, String $path )
