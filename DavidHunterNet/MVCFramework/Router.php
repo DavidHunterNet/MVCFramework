@@ -49,7 +49,7 @@ class Router
 
         foreach( $host as $h )
         {
-            if( isset( $this->routesError[ $code ][ $method ][ $h ][ $path ] ) )
+            if( isset( $this->errorRoutes[ $code ][ $method ][ $h ][ $path ] ) )
                 die( "Error: A route already exists for code " . $code . " method " . $method . " host " . $h . " and path " . $path . "!" );
             
             if( count( $callback ) < 2 || ! $callback[0] instanceof Controller )
@@ -58,7 +58,7 @@ class Router
             if( ! method_exists( $callback[0], $callback[1] ) )
                 die( "Error: Callback method does not exist for specified Controller instance!" );
             
-            $this->routesError[ $code ][ $method ][ $h ][ $path ] = $callback;
+            $this->errorRoutes[ $code ][ $method ][ $h ][ $path ] = $callback;
         }
     }
 
@@ -80,10 +80,10 @@ class Router
         else
             $base_path = "/";
 
-        if( ! array_key_exists( $code, $this->routesError ) || ! array_key_exists( $method, $this->routesError[ $code ] ) || ! array_key_exists( $host, $this->routesError[ $code ][ $method ] ) )
+        if( ! array_key_exists( $code, $this->errorRoutes ) || ! array_key_exists( $method, $this->errorRoutes[ $code ] ) || ! array_key_exists( $host, $this->errorRoutes[ $code ][ $method ] ) )
             return;
         
-        $possibleRoutes = $this->routesError[ $code ][ $method ][ $host ];
+        $possibleRoutes = $this->errorRoutes[ $code ][ $method ][ $host ];
 
         $path_parts = explode( "/", $base_path );
 
